@@ -1,7 +1,7 @@
 # Assignment 04 Interpretation Memo
 
-**Student Name:** [Your Name]
-**Date:** [Submission Date]
+**Student Name:** James Gawey
+**Date:** 2026-02-13
 **Assignment:** REIT Annual Returns and Predictors (Simple Linear Regression)
 
 ---
