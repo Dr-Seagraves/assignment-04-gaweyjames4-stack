@@ -1,7 +1,7 @@
 # Assignment 04 Interpretation Memo
 
-**Student Name:** [Your Name]
-**Date:** [Submission Date]
+**Student Name:** James Gawey
+**Date:** 2026-02-13
 **Assignment:** REIT Annual Returns and Predictors (Simple Linear Regression)
 
 ---
@@ -18,89 +18,97 @@ You estimated **three** simple OLS regressions of REIT *annual* returns on diffe
 
 For each model, summarize the key results in the sections below.
 
----
+--- Coefficient (slope) = -0.0687 (SE = 0.0320, p = 0.035) — statistically significant (5%).
+Intercept = 0.1082; R² = 0.002; N = 2527.
+Interpretation: a 1 percentage‑point increase in dividend yield (Δ = 0.01) → ≈ −0.000687 change in annual return (≈ −0.0687 percentage points).
+Takeaway: statistically detectable but economically negligible; explains virtually no cross‑sectional variation.
+Model 2 — ret ~ prime_rate 
+Coefficient (slope) = -0.0304 (SE = 0.0031, p < 0.001) — strongly significant.
+Intercept = 0.2506; R² = 0.037; N = 2527.
+Interpretation: a 1 percentage‑point increase in prime rate → ≈ −0.0304 change in annual return (≈ −3.04 percentage points).
+Takeaway: negative and economically meaningful in this sample, but still explains only a small share of variation.
+Model 3 — ret ~ ffo_at_reit 
+Coefficient (slope) = 0.5770 (SE = 0.5670, p = 0.309) — not significant.
+Intercept = 0.0973; R² ≈ 0.000; N = 2518.
+Interpretation: a +0.01 increase in ffo_at_reit → ≈ +0.00577 in annual return (~+0.577 percentage points), but estimate is imprecise.
+Takeaway: no reliable evidence of a relationship in the univariate specification.
 
 ## 2. Coefficient Comparison (All Three Regressions)
 
 **Model 1: ret ~ div12m_me**
-- Intercept (β₀): [value] (SE: [value], p-value: [value])
-- Slope (β₁): [value] (SE: [value], p-value: [value])
-- R²: [value] | N: [value]
+- Intercept (β₀): 0.1082 (SE: 0.0060, p < 0.001)
+- Slope (β₁): -0.0687 (SE: 0.0320, p = 0.035)
+- R²: 0.002 | N: 2527
 
 **Model 2: ret ~ prime_rate**
-- Intercept (β₀): [value] (SE: [value], p-value: [value])
-- Slope (β₁): [value] (SE: [value], p-value: [value])
-- R²: [value] | N: [value]
+- Intercept (β₀): 0.2506 (SE: 0.0160, p < 0.001)
+- Slope (β₁): -0.0304 (SE: 0.0031, p < 0.001)
+- R²: 0.037 | N: 2527
 
 **Model 3: ret ~ ffo_at_reit**
-- Intercept (β₀): [value] (SE: [value], p-value: [value])
-- Slope (β₁): [value] (SE: [value], p-value: [value])
-- R²: [value] | N: [value]
+- Intercept (β₀): 0.0973 (SE: 0.0092, p < 0.001)
+- Slope (β₁): 0.5770 (SE: 0.5670, p = 0.309)
+- R²: ~0.000 | N: 2518
 
-*Note: Model 3 may have fewer observations if ffo_at_reit has missing values; statsmodels drops those rows.*
+*Note: Model 3 uses slightly fewer observations because `ffo_at_reit` has some missing values.*
 
 ---
 
 ## 3. Slope Interpretation (Economic Units)
 
 **Dividend Yield (div12m_me):**
-- A 1 percentage point increase in dividend yield (12-month dividends / market equity) is associated with a [slope value] change in annual return.
-- [Your interpretation: Is higher dividend yield associated with higher or lower returns? Why might this be?]
+- Estimated slope = -0.0687. Since `div12m_me` is reported in decimal form, a 1 percentage point increase in dividend yield (Δ = 0.01) implies an expected change in annual return of -0.000687 — i.e. about -0.0687 percentage points. Economically this effect is very small.
 
 **Prime Loan Rate (prime_rate):**
-- A 1 percentage point increase in the year-end prime rate is associated with a [slope value] change in annual return.
-- [Your interpretation: Does the evidence suggest REIT returns are sensitive to interest rates? In which direction?]
+- Estimated slope = -0.0304. A 1 percentage point (1.0) increase in the year‑end prime rate is associated with a -0.0304 change in annual return (≈ -3.04 percentage points). This is economically meaningful and negative, consistent with higher rates compressing REIT returns.
 
 **FFO to Assets (ffo_at_reit):**
-- A 1 unit increase in FFO/Assets (fundamental performance) is associated with a [slope value] change in annual return.
-- [Your interpretation: Do more profitable REITs (higher FFO/Assets) earn higher returns?]
-
+- Estimated slope = 0.5770. FFO/Assets is typically a small fraction, so a 0.01 increase in `ffo_at_reit` implies ≈ +0.00577 (≈ +0.577 percentage points) in annual return — but see statistical significance below.
 ---
 
 ## 4. Statistical Significance
 
 For each slope, at the 5% significance level:
-- **div12m_me:** [Significant / Not significant] — [one sentence conclusion]
-- **prime_rate:** [Significant / Not significant] — [one sentence conclusion]
-- **ffo_at_reit:** [Significant / Not significant] — [one sentence conclusion]
+- **div12m_me:** Significant (p = 0.035) — slope is negative but explains almost no variance (very small economic effect).
+- **prime_rate:** Significant (p < 0.001) — negative slope with the strongest statistical evidence among the three predictors.
+- **ffo_at_reit:** Not significant (p = 0.309) — cannot reject no relationship in this simple regression.
 
-**Which predictor has the strongest statistical evidence of a relationship with annual returns?** [Your answer]
-
+**Which predictor has the strongest statistical evidence of a relationship with annual returns?** prime_rate (largest t‑stat and smallest p‑value).
 ---
 
 ## 5. Model Fit (R-squared)
 
 Compare R² across the three models:
-- [Your interpretation: Which predictor explains the most variation in annual returns? Is R² high or low in general? What does this suggest about other factors driving REIT returns?]
-
+- `prime_rate` has the highest R² (≈ 0.037), but even that explains only ~3.7% of cross‑sectional variation in annual returns.
+- `div12m_me` and `ffo_at_reit` have effectively zero explanatory power (R² ≈ 0.002 and ~0.000 respectively).
+- Overall R² values are very low → most of the variation in REIT annual returns is not explained by these single predictors. This suggests important omitted factors (market returns, firm characteristics, sector effects, momentum, etc.).
 ---
 
 ## 6. Omitted Variables
 
-By using only one predictor at a time, we might be omitting:
-- [Variable 1]: [Why it might matter]
-- [Variable 2]: [Why it might matter]
-- [Variable 3]: [Why it might matter]
+By using only one predictor at a time, we may be omitting important covariates such as:
+- Market return or CAPM beta: overall market performance strongly affects firm returns and may correlate with dividend yield or FFO.
+- Firm size / leverage / sector: these firm characteristics can drive returns and be correlated with the predictors.
+- Momentum or recent returns: past performance often predicts cross‑sectional returns.
 
-**Potential bias:** If omitted variables are correlated with both the X variable and ret, our slope estimates may be biased. [Brief discussion of direction if possible]
-
+**Potential bias:** If an omitted variable is correlated with both the predictor and `ret`, the OLS slope will be biased. For example, if larger REITs both pay higher dividends and systematically earn different returns, the `div12m_me` slope may confound size effects with dividend yield effects.
 ---
 
 ## 7. Summary and Next Steps
 
 **Key Takeaway:**
-[2-3 sentences summarizing which predictor(s) show the strongest relationship with REIT annual returns and whether the evidence is consistent with economic theory]
+- Prime rate shows the most consistent and statistically significant relationship with REIT annual returns (negative slope). Dividend yield shows a statistically significant but economically tiny (and practically unimportant) negative relationship. FFO/Assets is not statistically significant in the simple cross‑sectional regressions.
 
 **What we would do next:**
-- Extend to multiple regression (include two or more predictors)
-- Test for heteroskedasticity and other OLS assumption violations
-- Examine whether relationships vary by time period or REIT sector
+- Estimate multivariate regressions (include market return, size, leverage, and sector fixed effects).
+- Run diagnostic tests (heteroskedasticity, influential observations) and consider robust standard errors.
+- Explore interactions and time‑variation (split sample by period or sector).
 
 ---
 
 ## Reproducibility Checklist
-- [ ] Script runs end-to-end without errors
-- [ ] Regression output saved to `Results/regression_div12m_me.txt`, `regression_prime_rate.txt`, `regression_ffo_at_reit.txt`
-- [ ] Scatter plots saved to `Results/scatter_div12m_me.png`, `scatter_prime_rate.png`, `scatter_ffo_at_reit.png`
-- [ ] Report accurately reflects regression results
-- [ ] All interpretations are in economic units (not just statistical jargon)
+- [x] Script runs end-to-end without errors (pytest: 10 passed)
+- [x] Regression output saved to `Results/regression_div12m_me.txt`, `regression_prime_rate.txt`, `regression_ffo_at_reit.txt`
+- [x] Scatter plots saved to `Results/scatter_div12m_me.png`, `scatter_prime_rate.png`, `scatter_ffo_at_reit.png`
+- [x] Report accurately reflects regression results (values taken from `Results/`)
+- [x] All interpretations are expressed in economic units where helpful
