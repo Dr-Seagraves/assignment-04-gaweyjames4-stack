@@ -122,10 +122,8 @@ def estimate_regression(df: pd.DataFrame, x_var: str):
     statsmodels.regression.linear_model.RegressionResultsWrapper
         Fitted regression model.
     """
-    # TODO: Use statsmodels.formula.api.ols to estimate ret ~ x_var
-    # Hint: model = ols(f"ret ~ {x_var}", data=df).fit()
-    # return model
-    raise NotImplementedError("Implement the regression estimation here")
+    model = ols(f"ret ~ {x_var}", data=df).fit()
+    return model
 
 
 def save_regression_summary(model, output_path: Path) -> None:
@@ -133,44 +131,108 @@ def save_regression_summary(model, output_path: Path) -> None:
     Save the regression summary to a text file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    # TODO: Write str(model.summary()) to the output file
-    with open(output_path, "w") as f:
-        pass  # TODO
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(str(model.summary()))
+        f.write("\n")
 
 
 def plot_scatter_with_regression(
     df: pd.DataFrame, model, x_var: str, title: str, xlabel: str, output_path: Path
 ) -> None:
     """
-    Create a scatter plot with the fitted regression line.
-
-    Tips:
-    - Use only rows with valid x_var and ret (dropna)
-    - Scatter: x=x_var, y='ret' (use alpha for transparency)
-    - Regression line: compute y = intercept + slope * x over a range of x values
-    - Zoom axis limits to central data (e.g., 2nd–98th percentiles) so the slope is easier to see
+    Create a scatter plot with the fitted regression line, 95% confidence band,
+    and a residuals subplot below the main figure.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    # TODO: Create fig, ax with plt.subplots(figsize=(10, 6))
-    # TODO: Filter to rows with valid x_var and ret
-    # TODO: Scatter plot
-    # TODO: Overlay regression line (use model.params['Intercept'] and model.params[x_var])
-    # TODO: Set axis limits to zoom on central data (e.g., percentiles 2–98)
-    # TODO: Add title (include R²), xlabel, ylabel="Annual Return", legend
-    # TODO: Save with plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    pass  # TODO
+
+    df_plot = df[[x_var, "ret"]].dropna()
+    if df_plot.empty:
+        return
+
+    # Prediction grid (central 2-98 percentiles)
+    x_min = float(df_plot[x_var].quantile(0.02))
+    x_max = float(df_plot[x_var].quantile(0.98))
+    x_grid = np.linspace(x_min, x_max, 200)
+    pred_df = pd.DataFrame({x_var: x_grid})
+
+    # Get prediction with confidence intervals (uses formula API names)
+    try:
+        pred = model.get_prediction(pred_df)
+        pred_summary = pred.summary_frame(alpha=0.05)
+        y_mean = pred_summary["mean"]
+        ci_lower = pred_summary["mean_ci_lower"]
+        ci_upper = pred_summary["mean_ci_upper"]
+    except Exception:
+        # Fallback: use analytic line without CI
+        intercept = float(model.params.get("Intercept", 0.0))
+        slope = float(model.params.get(x_var, 0.0))
+        y_mean = intercept + slope * x_grid
+        ci_lower = y_mean.copy()
+        ci_upper = y_mean.copy()
+
+    # Create main + residuals subplot
+    fig, (ax, ax_resid) = plt.subplots(
+        2,
+        1,
+        figsize=(10, 10),
+        gridspec_kw={"height_ratios": [3, 1]},
+        sharex=False,
+    )
+
+    # Scatter + fit + CI
+    ax.scatter(df_plot[x_var], df_plot["ret"], alpha=0.6, label="observations")
+    ax.plot(x_grid, y_mean, color="C1", linewidth=2, label="fitted line")
+    ax.fill_between(x_grid, ci_lower, ci_upper, color="C1", alpha=0.2, label="95% CI")
+
+    # Axis limits (zoom to central data)
+    y_lo = float(df_plot["ret"].quantile(0.02))
+    y_hi = float(df_plot["ret"].quantile(0.98))
+    ax.set_xlim(x_min, x_max)
+    ax.set_ylim(y_lo, y_hi)
+
+    ax.set_title(f"{title} (R² = {model.rsquared:.3f})")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel("Annual Return")
+    ax.legend()
+
+    # Residuals vs X
+    fitted_vals = model.predict(df_plot)
+    resid = df_plot["ret"] - fitted_vals
+    ax_resid.scatter(df_plot[x_var], resid, alpha=0.6)
+    ax_resid.axhline(0, color="k", linewidth=0.8)
+    r_lo = float(resid.quantile(0.02))
+    r_hi = float(resid.quantile(0.98))
+    ax_resid.set_xlim(x_min, x_max)
+    ax_resid.set_ylim(r_lo, r_hi)
+    ax_resid.set_xlabel(xlabel)
+    ax_resid.set_ylabel("Residuals")
+
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
 
 
 def print_key_results(model, x_var: str) -> None:
     """
     Print key regression results to the console.
     """
+    intercept = float(model.params.get("Intercept", np.nan))
+    slope = float(model.params.get(x_var, np.nan))
+    se = float(model.bse.get(x_var, np.nan))
+    tstat = float(model.tvalues.get(x_var, np.nan))
+    pval = float(model.pvalues.get(x_var, np.nan))
+    r2 = float(model.rsquared)
+    adj_r2 = float(model.rsquared_adj)
+    n = int(model.nobs)
+
     print("\n" + "=" * 60)
     print(f"ret (annual) ~ {x_var.upper()}")
     print("=" * 60)
-    # TODO: Print intercept (β₀), slope (β₁), standard errors, t-stats, p-values
-    # TODO: Print R², Adj R², N
-    # TODO: Print whether slope is positive/negative and significant at 5%
+    print(f"Intercept (β₀): {intercept:.4f}")
+    print(f"Slope (β₁)  : {slope:.4f}  (SE={se:.4f}, t={tstat:.3f}, p={pval:.3g})")
+    print(f"R-squared   : {r2:.4f}   Adj R² = {adj_r2:.4f}   N = {n}")
+    sig_text = "significant (p < 0.05)" if pval < 0.05 else "not significant (p ≥ 0.05)"
+    direction = "positive" if slope > 0 else "negative" if slope < 0 else "zero"
+    print(f"Slope is {direction} and {sig_text} at 5% level.")
     print("=" * 60 + "\n")
 
 
