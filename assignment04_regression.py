@@ -99,8 +99,7 @@ def load_reit_annual_data(data_path: Path) -> pd.DataFrame:
 
     df = _merge_annual_interest_rates(df, data_path.parent)
 
-    # TODO: Drop rows with missing values in ret, div12m_me, prime_rate
-    # Hint: df = df.dropna(subset=["ret", "div12m_me", "prime_rate"])
+    # Drop rows with missing values required for the main regressions
     df = df.dropna(subset=["ret", "div12m_me", "prime_rate"])
 
     return df

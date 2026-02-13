@@ -18,7 +18,20 @@ You estimated **three** simple OLS regressions of REIT *annual* returns on diffe
 
 For each model, summarize the key results in the sections below.
 
----
+--- Coefficient (slope) = -0.0687 (SE = 0.0320, p = 0.035) — statistically significant (5%).
+Intercept = 0.1082; R² = 0.002; N = 2527.
+Interpretation: a 1 percentage‑point increase in dividend yield (Δ = 0.01) → ≈ −0.000687 change in annual return (≈ −0.0687 percentage points).
+Takeaway: statistically detectable but economically negligible; explains virtually no cross‑sectional variation.
+Model 2 — ret ~ prime_rate 
+Coefficient (slope) = -0.0304 (SE = 0.0031, p < 0.001) — strongly significant.
+Intercept = 0.2506; R² = 0.037; N = 2527.
+Interpretation: a 1 percentage‑point increase in prime rate → ≈ −0.0304 change in annual return (≈ −3.04 percentage points).
+Takeaway: negative and economically meaningful in this sample, but still explains only a small share of variation.
+Model 3 — ret ~ ffo_at_reit 
+Coefficient (slope) = 0.5770 (SE = 0.5670, p = 0.309) — not significant.
+Intercept = 0.0973; R² ≈ 0.000; N = 2518.
+Interpretation: a +0.01 increase in ffo_at_reit → ≈ +0.00577 in annual return (~+0.577 percentage points), but estimate is imprecise.
+Takeaway: no reliable evidence of a relationship in the univariate specification.
 
 ## 2. Coefficient Comparison (All Three Regressions)
 
